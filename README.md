@@ -24,9 +24,12 @@ Note: Transferring the data is the manual operation and these operations should 
 
 Maintain the data in multiple volumes. In hdfs-site.xml add the entries of the data volumes as shown below.
 
-`<property> 
+`<property>
+
   <name>dfs.data.dir</name> 
+  
   <value>/u1/hadoop/data,/u2/hadoop/data</value> 
+  
 </property>`
 
 **Adding the node:**
