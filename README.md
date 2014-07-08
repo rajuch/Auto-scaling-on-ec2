@@ -1,5 +1,7 @@
-﻿Problem Statement:
-Running hive on hadoop,    
+#﻿Problem Statement:
+﻿
+Running hive on hadoop,
+
    when user adds the node to the cluster, name node trasfers the data to the new node to balance the cluster and to take the new node into the action (for the execution of tasks). 
   when user decommisions the node from the cluster, name node transfers the data from the decommision node to the other nodes for maintaining the replication factor.
  These operations takes lot of time when dealing with the huge data (in tera bytes) and these operations have impact on the hive query execution time too..
