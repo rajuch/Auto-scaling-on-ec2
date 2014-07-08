@@ -109,7 +109,7 @@ With 6 gb data (existing procedure) :  **60 mins**
 
 With the new procedure (6gb data), 
 
-scp transfer (11.48mins) + namenode updation(300msec): **less than 12 mins **
+scp transfer (11.48mins) + namenode updation(300msec): **less than 12 mins**
 
 **Time taken for Hive query**,
 
