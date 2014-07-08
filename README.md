@@ -1,22 +1,22 @@
 ###﻿Problem Statement:
 ﻿
-Running hive on hadoop,
+Hive on hadoop,
 
-   when user adds the node to the cluster, name node trasfers the data to the new node to balance the cluster and to take the new node into the action (for the execution of tasks). 
+  when user adds the node to the cluster, name node trasfers the data to the new node to balance the cluster and to take the new node into the action (for the execution of tasks). 
    
   when user decommisions the node from the cluster, name node transfers the data from the decommision node to the other nodes for maintaining the replication factor.
   
- These operations takes lot of time when dealing with the huge data (in tera bytes) and these operations have impact on the hive query execution time too..
+  These operations takes lot of time when dealing with the huge data (in tera bytes) and these operations have impact on the hive query execution time too..
 
 ### Solution:
 
 **Adding the node:**
 
- Before adding the new node, move the data from the existing nodes to the new node and add it to the cluster, it balances the cluster and if any new task comes then new node can take it right away as it has the data (data locality).
+  Before adding the new node, move the data from the existing nodes to the new node and add it to the cluster, it balances the cluster and if any new task comes then new node can take it right away as it has the data (data locality).
  
 **Decommisioning the node:**
 
- Before decommisioning, move the data from the decommisioning node to the other nodes in the cluster, it maintains the replication factor.
+  Before decommisioning, move the data from the decommisioning node to the other nodes in the cluster, it maintains the replication factor.
 
 Note: Transferring the data is the manual operation and these operations should be done before the execution of hive query
 
@@ -135,7 +135,7 @@ We did these operations, adding/removing node,  before the hive query execution.
 
  For higher performance, MapReduce tries to assign workloads to these servers where the data to be processed is stored. This is known as data locality.
  
-**Scaling the cluster **
+**Scaling the cluster**
 
 Adding a node to the hadoop cluster:
 
@@ -148,17 +148,17 @@ Adding a node to the hadoop cluster:
 5. Add the IP address of new node to “/etc/hosts” in the namenode(master) and other slave nodes 
 6. Append the IP address of new node to “conf/slaves” in the master 
 7. Start Hadoop thread in new node manually, 
-
 ```
   bin/hadoop-daemon.sh start datanode 
   bin/hadoop-daemon.sh start tasktracker
   ```
-8.  Refresh the nodes on namenode(master) 
-  `bin/hadoop dfsadmin -refreshNodes `
+8. Refresh the nodes on namenode(master)
+
+  `bin/hadoop dfsadmin -refreshNodes`
   
 Removing a node from the hadoop cluster:
 
-1. Add list of datanode(s) that needs to decommission to exclude file (assume this file is located under hadoop/conf directory) on namenode . 
+1. Add list of datanode(s) that needs to decommission to exclude file (assume this file is located under hadoop/conf directory) on namenode.
 2. Modify the namenode hdfs-site.xml config file to set the property for dfs.hosts.exclude (see below). ignore this step if you have already have this property set. 
 ```
 	<property> 
@@ -166,7 +166,6 @@ Removing a node from the hadoop cluster:
    		<value>/usr/lib/hadoop/conf/exclude</value> 
    		<description> List of nodes to decommission </description> 
 	</property> 
-	
 ```
 3. Modify the namenode “mapred-site.xml” config file to set the property for mapred.hosts.exclude (see below), ignore this step if you have already have this property set. 
 ```
@@ -177,5 +176,6 @@ Removing a node from the hadoop cluster:
 	</property>
 ```
 4. Now update the namenode(master only) using following command. 
+
    `hadoop dfsadmin –refreshNodes `
 
