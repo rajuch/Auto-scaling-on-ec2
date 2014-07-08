@@ -24,29 +24,33 @@ Note: Transferring the data is the manual operation and these operations should 
 
 Maintain the data in multiple volumes. In hdfs-site.xml add the entries of the data volumes as shown below.
 
-```<property>
+```
+<property>
    <name>dfs.data.dir</name> 
    <value>/u1/hadoop/data,/u2/hadoop/data</value> 
- </property>```
+ </property>
+```
 
 **Adding the node:**
 
 1. Remove the volume from the existing nodes and add these volumes to the new node.
 	* Add the removing volume entries to the below property in hdfs-site.xml 
 	
-	```<property>
-     <name>dfs.remove.dir</name>
-     <value>/u1/hadoop/data</value>
+	```
+	<property>
+     	<name>dfs.remove.dir</name>
+     	<value>/u1/hadoop/data</value>
 	</property>```
    * Execute the below command to update the volumeMap of datanode and to report the remaining  blocks to the namenode
    
 	  `bin/hadoop datanodeadmin -deleteVolume`
    * Unmount the volume and mount it on new node and change the StorageID in the VERSION file (change the ip address of the storage id to the new node)
    * Add the volume entry to below property in hdfs-site.xml in new node
-     ```<property>
+     ```
+	<property>
         <name>dfs.data.dir</name>
         <volume>/u1/hadoop/data</volume>
-      </property>```
+    </property>```
 2. Add the new node to the cluster (see Appendix)
 
 **Removing the node:**
