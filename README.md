@@ -1,5 +1,5 @@
-Problem Statement:
-Running hive on hadoop,
+﻿Problem Statement:
+Running hive on hadoop,    
    when user adds the node to the cluster, name node trasfers the data to the new node to balance the cluster and to take the new node into the action (for the execution of tasks). 
   when user decommisions the node from the cluster, name node transfers the data from the decommision node to the other nodes for maintaining the replication factor.
  These operations takes lot of time when dealing with the huge data (in tera bytes) and these operations have impact on the hive query execution time too..
@@ -20,7 +20,7 @@ Maintain the data in multiple volumes. In hdfs-site.xml add the entries of the d
 </property> 
 Adding the node:
 1. Remove the volume from the existing nodes and add these volumes to the new node.
-i.  Add the removing volume entries to the below property in hdfs-site.xml
+i.  Add the removing volume entries to the below property in hdfs-site.xml    
 <property>
    <name>dfs.remove.dir</name>
    <value>/u1/hadoop/data</value>
@@ -44,6 +44,15 @@ For every volume,
            ii. Add the entry in hdfs-site.xml at the end of the existing volume entries (because data node picks the last entry as the new entry)
          iii. And run the below command
              bin/hadoop datanodeadmin -addVolume
+
+
+
+
+
+
+
+
+
 
 
 Statistics:
@@ -73,4 +82,47 @@ after adding new node after copying the data from the other nodes to new node: 9
 
 Conclusion:
 If we observe the results, new procedure has taken less time because of the data locality when compared to the existing procedure. We can add the nodes to the cluster when we execute the big hive queries and we can remove the nodes when we dont require, in small amount of time.
- 
+
+
+Future Work
+We did these operations, adding/removing node,  before the hive query execution. We would like to do these operation while executing the query to minimize the time for executing the big queries on big data.
+    
+
+
+
+Appendix:
+Data Locality
+ For higher performance, MapReduce tries to assign workloads to these servers where the data to be processed is stored. This is known as data locality.
+Scaling the cluster 
+Adding a node to the hadoop cluster: 
+1. Set proper DNS mapping in “/etc/hosts” for assigned IP address in network. 
+2. In the new node, add namenode(master) IP address to “/etc/hosts” 
+3. Install SSH and copy the SSH keys to the node from master nodes in the cluster 
+	you just have to add the master’s public SSH key (which should be in $HOME/.ssh/id_rsa.pub) to the authorized_keys file of slave 
+   command: ssh-copy-id -i $HOME/.ssh/id_rsa.pub hduser@slave 
+4. Copy Hadoop install files to the adding nodes and make proper configuration by synchronizing “core-site.xml”, “mapred-site.xml”, “hdfs-site.xml” from other nodes in cluster only 
+5. Add the IP address of new node to “/etc/hosts” in the namenode(master) and other slave nodes 
+6. Append the IP address of new node to “conf/slaves” in the master 
+7. Start Hadoop thread in new node manually, 
+  bin/hadoop-daemon.sh start datanode 
+  bin/hadoop-daemon.sh start tasktracker 
+8.  Refresh the nodes on namenode(master) 
+  bin/hadoop dfsadmin -refreshNodes 
+  
+Removing a node from the hadoop cluster: 
+1. Add list of datanode(s) that needs to decommission to exclude file (assume this file is located under hadoop/conf directory) on namenode . 
+2. Modify the namenode hdfs-site.xml config file to set the property for dfs.hosts.exclude (see below). ignore this step if you have already have this property set. 
+<property> 
+   <name>dfs.hosts.exclude</name> 
+   <value>/usr/lib/hadoop/conf/exclude</value> 
+   <description> List of nodes to decommission </description> 
+</property> 
+3. Modify the namenode “mapred-site.xml” config file to set the property for mapred.hosts.exclude (see below), ignore this step if you have already have this property set. 
+<property> 
+   <name>mapred.hosts.exclude</name> 
+   <value>/usr/lib/hadoop/conf/exclude</value> 
+   <description> List of nodes to decommission </description> 
+</property> 
+4. Now update the namenode(master only) using following command. 
+   hadoop dfsadmin –refreshNodes 
+
