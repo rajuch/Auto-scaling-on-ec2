@@ -28,7 +28,8 @@ Maintain the data in multiple volumes. In hdfs-site.xml add the entries of the d
 <property>
    <name>dfs.data.dir</name> 
    <value>/u1/hadoop/data,/u2/hadoop/data</value> 
- </property>
+</property>
+
 ```
 
 **Adding the node:**
@@ -40,7 +41,8 @@ Maintain the data in multiple volumes. In hdfs-site.xml add the entries of the d
 	<property>
      	<name>dfs.remove.dir</name>
      	<value>/u1/hadoop/data</value>
-	</property>```
+	</property>
+```
    * Execute the below command to update the volumeMap of datanode and to report the remaining  blocks to the namenode
    
 	  `bin/hadoop datanodeadmin -deleteVolume`
@@ -50,7 +52,8 @@ Maintain the data in multiple volumes. In hdfs-site.xml add the entries of the d
 	<property>
         <name>dfs.data.dir</name>
         <volume>/u1/hadoop/data</volume>
-    </property>```
+    </property>
+  ```
 2. Add the new node to the cluster (see Appendix)
 
 **Removing the node:**
@@ -68,6 +71,7 @@ Maintain the data in multiple volumes. In hdfs-site.xml add the entries of the d
            * Add the entry in hdfs-site.xml at the end of the existing volume entries (because data node picks the last entry as the new
            entry)
            * And run the below command
+           
              `bin/hadoop datanodeadmin -addVolume`
 
 ### Statistics:
@@ -145,8 +149,10 @@ Adding a node to the hadoop cluster:
 6. Append the IP address of new node to “conf/slaves” in the master 
 7. Start Hadoop thread in new node manually, 
 
-``` bin/hadoop-daemon.sh start datanode 
-  bin/hadoop-daemon.sh start tasktracker ```
+```
+  bin/hadoop-daemon.sh start datanode 
+  bin/hadoop-daemon.sh start tasktracker
+  ```
 8.  Refresh the nodes on namenode(master) 
   `bin/hadoop dfsadmin -refreshNodes `
   
@@ -154,17 +160,22 @@ Removing a node from the hadoop cluster:
 
 1. Add list of datanode(s) that needs to decommission to exclude file (assume this file is located under hadoop/conf directory) on namenode . 
 2. Modify the namenode hdfs-site.xml config file to set the property for dfs.hosts.exclude (see below). ignore this step if you have already have this property set. 
-```<property> 
-   <name>dfs.hosts.exclude</name> 
-   <value>/usr/lib/hadoop/conf/exclude</value> 
-   <description> List of nodes to decommission </description> 
-</property> ```
+```
+	<property> 
+   		<name>dfs.hosts.exclude</name> 
+   		<value>/usr/lib/hadoop/conf/exclude</value> 
+   		<description> List of nodes to decommission </description> 
+	</property> 
+	
+```
 3. Modify the namenode “mapred-site.xml” config file to set the property for mapred.hosts.exclude (see below), ignore this step if you have already have this property set. 
-```<property> 
-   <name>mapred.hosts.exclude</name> 
-   <value>/usr/lib/hadoop/conf/exclude</value> 
-   <description> List of nodes to decommission </description> 
-</property> ```
+```
+	<property> 
+   		<name>mapred.hosts.exclude</name> 
+   		<value>/usr/lib/hadoop/conf/exclude</value> 
+   		<description> List of nodes to decommission </description> 
+	</property>
+```
 4. Now update the namenode(master only) using following command. 
    `hadoop dfsadmin –refreshNodes `
 
