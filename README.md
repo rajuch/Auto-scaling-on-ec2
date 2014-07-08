@@ -42,18 +42,18 @@ Maintain the data in multiple volumes. In hdfs-site.xml add the entries of the d
      	<name>dfs.remove.dir</name>
      	<value>/u1/hadoop/data</value>
 	</property>
-```
+	```
    * Execute the below command to update the volumeMap of datanode and to report the remaining  blocks to the namenode
    
 	  `bin/hadoop datanodeadmin -deleteVolume`
    * Unmount the volume and mount it on new node and change the StorageID in the VERSION file (change the ip address of the storage id to the new node)
    * Add the volume entry to below property in hdfs-site.xml in new node
-     ```
+    ```
 	<property>
         <name>dfs.data.dir</name>
         <volume>/u1/hadoop/data</volume>
-    </property>
-  ```
+	</property>
+    ```
 2. Add the new node to the cluster (see Appendix)
 
 **Removing the node:**
