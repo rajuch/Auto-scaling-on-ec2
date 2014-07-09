@@ -1,11 +1,10 @@
 ###﻿Problem Statement:
 ﻿
-While running hive on hadoop, 
+Scaling a Hadoop cluster with Hive has the following issues
 
-   when load on cluster is high, adding the computing node decreases the execution time of the queries but not that much because new node works on the other nodes data as it has no data,
-   
-   when load on the cluster is low, removing the node from the cluster also takes lot of time. 
-   
+1. Adding a computing node(Scaling up) when load on the cluster is high decreases the execution time of the queries but its there is still a huge time lag as the new node works on data from other nodes.
+2. The process of removing a node from the cluster(Scaling down) when load on the cluster is low, is also time consuming.
+
 ### Solution:
 
 To reduce the time to scale the Hadoop cluster, we came up with the following solution
@@ -17,58 +16,6 @@ To reduce the time to scale the Hadoop cluster, we came up with the following so
 Following this approach reduces the impact on time taken for queries when adding/removing the nodes.
 
 Note: Transferring the data is the manual operation and these operations should be done before the execution of hive query
-
-### Procedure:
-
-Maintain the data in multiple volumes. In hdfs-site.xml add the entries of the data volumes as shown below.
-
-```
-<property>
-   <name>dfs.data.dir</name> 
-   <value>/u1/hadoop/data,/u2/hadoop/data</value> 
-</property>
-
-```
-
-**Adding the node:**
-
-1. Remove the volume from the existing nodes and add these volumes to the new node.
-	* Add the removing volume entries to the below property in hdfs-site.xml 
-	
-	```
-	<property>
-     	<name>dfs.remove.dir</name>
-     	<value>/u1/hadoop/data</value>
-	</property>
-	```
-   * Execute the below command to update the volumeMap of datanode and to report the remaining  blocks to the namenode
-   
-	  `bin/hadoop datanodeadmin -deleteVolume`
-   * Unmount the volume and mount it on new node and change the StorageID in the VERSION file (change the ip address of the storage id to the new node)
-   * Add the volume entry to below property in hdfs-site.xml in new node
-    ```
-	<property>
-        <name>dfs.data.dir</name>
-        <volume>/u1/hadoop/data</volume>
-	</property>
-    ```
-2. Add the new node to the cluster (see Appendix)
-
-**Removing the node:**
-
-1. Remove the volumes from the decommiosion node 
-
-   `bin/hadoop datanodeadmin -deletevolume`
-   
-2. Start decommisioning of the node (see Appendix)
-3. Mount the volumes on the existing datanodes one by one.
-For every volume,
-	* Mount the volume on data node and change the StorageID in the VERSION file (change the ip address of the storage id to the new node)
-    * Add the entry in hdfs-site.xml at the end of the existing volume entries (because data node picks the last entry as the new
-      entry)
-    * And run the below command
-           
-       `bin/hadoop datanodeadmin -addVolume`
 
 ### Statistics:
 Hadoop Version: **1.4.0**
@@ -85,35 +32,11 @@ Data: **22 GB**
 |---|---|
 |5-6 sec| 8-9 sec|
 
-Our procedure
-
-Time to update the datanode about the deleted volume and report to namenode:  **3.042 sec**
-
-Time to bring up the new node:  **5sec**
-
-Time to update the Namenode about the new node data:  **300msec**
-
-So in a few minutes user can able to add the new node with the data.
-
-Existing procedure:
-
-Time to bring up the new node:  **5sec**
-
-Time to update the Namenode about the new node data:  **300msec**
-
 **Decommisoning of node:**
 
 |Existing Procedure(6gb data)| Our Procedure(6gb data)|
 |---|---|
 |60 mins| 6-7 sec|
-
-
-With 6 gb data (existing procedure) :  **60 mins**
-
-With the Our procedure (6gb data), 
-
-Time to update the datanode about the deleted volume and report to namenode on decommissioning node:  **3.042 sec**
-Time to update the datanode about the deleted volume and report to namenode on the other nodes:  **3.042 sec**
 
 
 **Time taken for Hive query**,
@@ -122,11 +45,6 @@ Time to update the datanode about the deleted volume and report to namenode on t
 |---|---|---|
 |16mins,25sec|13mins,38sec| 9mins,41sec|
 
- on 4 node cluster: **16mins, 25sec**
- 
-after adding new node without copying the data (i.e. new node has no data): **13mins, 38sec**  (5 node cluster)
-
-after adding new node after copying the data from the other nodes to new node: **9mins, 41sec** (5 node cluster)
 
 ### Conclusion:
 If we observe the results, new procedure has taken less time because of the data locality when compared to the existing procedure. 
