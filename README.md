@@ -1,16 +1,20 @@
 ###﻿Problem Statement:
 ﻿
-While running hive on hadoop, adding the computing node reduces the execution time when load is high but not that much because new node has to work on the other nodes data as it has no data and removing the node from the cluster when the load is low, also takes lot of time. 
+While running hive on hadoop, 
 
+   when load on cluster is high, adding the computing node decreases the execution time of the queries but not that much because new node works on the other nodes data as it has no data,
+   
+   when load on the cluster is low, removing the node from the cluster also takes lot of time. 
+   
 ### Solution:
 
-To reduce the time to scale the hadoop cluster, we came up with the below idea
+To reduce the time to scale the Hadoop cluster, we came up with the following solution
 
- Before adding the new node, move the data from the existing nodes to the new node and add it to the cluster, it balances the cluster and if any new task comes then new node can take it right away as it has the data (data locality).
- 
-And, before decommisioning the node, move the data from the decommisioning node to the other nodes in the cluster, it maintains the replication factor.
-
-This way reduces the lot of time as we are transferring the data to/from the node manually and it reduces the query time also as the new node can work on its own data.
+   Prior to adding a new node, move the data from the existing nodes to the new node. This balances the cluster and if a new task comes, the newly added node can take it up as it already has the data (data locality).
+   
+   When decommissioning a node, move the data available on that node to the other nodes in the cluster. This helps in maintaining the replication factor.
+  
+Following this approach reduces the impact on time taken for queries when adding/removing the nodes.
 
 Note: Transferring the data is the manual operation and these operations should be done before the execution of hive query
 
@@ -77,11 +81,11 @@ Data: **22 GB**
 
 **Adding node:**
 
-New procedure
-
 |Existing Procedure| New Procedure|
 |---|---|
 |5-6 sec| 12mins|
+
+New procedure
 
 Time taken to unmount the volume(6.0GB) and mount on new node(node5) : **11.48 mins** (scp transfer)
 
@@ -125,11 +129,11 @@ after adding new node without copying the data (i.e. new node has no data): **13
 after adding new node after copying the data from the other nodes to new node: **9mins, 41sec** (5 node cluster)
 
 ### Conclusion:
-If we observe the results, new procedure has taken less time because of the data locality when compared to the existing procedure. We can add the nodes to the cluster when we execute the big hive queries and we can remove the nodes when we dont require, in small amount of time.
+If we observe the results, new procedure has taken less time because of the data locality when compared to the existing procedure. 
 
 
 ### Future Work
-We did these operations, adding/removing node,  before the hive query execution. We would like to do these operation while executing the query to minimize the time for executing the big queries on big data.
+We did these operations, adding/removing node,  before the hive query execution. In next phase will check while executing the hive queries.
     
 
 
@@ -151,11 +155,13 @@ Adding a node to the hadoop cluster:
 4. Copy Hadoop install files to the adding nodes and make proper configuration by synchronizing “core-site.xml”, “mapred-site.xml”, “hdfs-site.xml” from other nodes in cluster only 
 5. Add the IP address of new node to “/etc/hosts” in the namenode(master) and other slave nodes 
 6. Append the IP address of new node to “conf/slaves” in the master 
-7. Start Hadoop thread in new node manually, 
+7. Start Hadoop thread in new node manually,
+
 ```
   bin/hadoop-daemon.sh start datanode 
   bin/hadoop-daemon.sh start tasktracker
   ```
+
 8. Refresh the nodes on namenode(master)
 
   `bin/hadoop dfsadmin -refreshNodes`
@@ -164,6 +170,7 @@ Removing a node from the hadoop cluster:
 
 1. Add list of datanode(s) that needs to decommission to exclude file (assume this file is located under hadoop/conf directory) on namenode.
 2. Modify the namenode hdfs-site.xml config file to set the property for dfs.hosts.exclude (see below). ignore this step if you have already have this property set. 
+
 ```
 	<property> 
    		<name>dfs.hosts.exclude</name> 
@@ -171,7 +178,9 @@ Removing a node from the hadoop cluster:
    		<description> List of nodes to decommission </description> 
 	</property> 
 ```
-3. Modify the namenode “mapred-site.xml” config file to set the property for mapred.hosts.exclude (see below), ignore this step if you have already have this property set. 
+
+3. Modify the namenode “mapred-site.xml” config file to set the property for mapred.hosts.exclude (see below), ignore this step if you have already have this property set.
+
 ```
 	<property> 
    		<name>mapred.hosts.exclude</name> 
@@ -179,7 +188,8 @@ Removing a node from the hadoop cluster:
    		<description> List of nodes to decommission </description> 
 	</property>
 ```
-4. Now update the namenode(master only) using following command. 
+
+4. Now update the namenode(master only) using following command.
 
    `hadoop dfsadmin –refreshNodes `
 
