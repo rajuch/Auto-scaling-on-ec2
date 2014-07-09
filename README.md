@@ -81,13 +81,11 @@ Data: **22 GB**
 
 **Adding node:**
 
-|Existing Procedure| New Procedure|
+|Existing Procedure| Our Procedure|
 |---|---|
-|5-6 sec| 12mins|
+|5-6 sec| 8-9 sec|
 
-New procedure
-
-Time taken to unmount the volume(6.0GB) and mount on new node(node5) : **11.48 mins** (scp transfer)
+Our procedure
 
 Time to update the datanode about the deleted volume and report to namenode:  **3.042 sec**
 
@@ -105,20 +103,22 @@ Time to update the Namenode about the new node data:  **300msec**
 
 **Decommisoning of node:**
 
-|Existing Procedure(6gb data)| New Procedure(6gb data)|
+|Existing Procedure(6gb data)| Our Procedure(6gb data)|
 |---|---|
-|60 mins| < 12mins|
+|60 mins| 6-7 sec|
 
 
 With 6 gb data (existing procedure) :  **60 mins**
 
-With the new procedure (6gb data), 
+With the Our procedure (6gb data), 
 
-scp transfer (11.48mins) + namenode updation(300msec): **less than 12 mins**
+Time to update the datanode about the deleted volume and report to namenode on decommissioning node:  **3.042 sec**
+Time to update the datanode about the deleted volume and report to namenode on the other nodes:  **3.042 sec**
+
 
 **Time taken for Hive query**,
 
-|4node cluster |Existing Procedure| New Procedure|
+|4node cluster |Existing Procedure| Our Procedure|
 |---|---|---|
 |16mins,25sec|13mins,38sec| 9mins,41sec|
 
