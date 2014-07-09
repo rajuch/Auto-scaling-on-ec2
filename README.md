@@ -79,6 +79,10 @@ Data: **22 GB**
 
 New procedure
 
+|Existing Procedure| New Procedure|
+|---|---|
+|5-6 sec| 12mins|
+
 Time taken to unmount the volume(6.0GB) and mount on new node(node5) : **11.48 mins** (scp transfer)
 
 Time to update the datanode about the deleted volume and report to namenode:  **3.042 sec**
@@ -95,11 +99,12 @@ Time to bring up the new node:  **5sec**
 
 Time to update the Namenode about the new node data:  **300msec**
 
-|Existing Procedure| New Procedure|
-|---|---|
-|5-6 sec| 12mins|
-
 **Decommisoning of node:**
+
+|Existing Procedure(6gb data)| New Procedure(6gb data)|
+|---|---|
+|60 mins| < 12mins|
+
 
 With 6 gb data (existing procedure) :  **60 mins**
 
@@ -107,21 +112,17 @@ With the new procedure (6gb data),
 
 scp transfer (11.48mins) + namenode updation(300msec): **less than 12 mins**
 
-|Existing Procedure| New Procedure|
-|---|---|
-|60 mins| < 12mins|
-
 **Time taken for Hive query**,
+
+|4node cluster |Existing Procedure| New Procedure|
+|---|---|---|
+|16mins,25sec|13mins,38sec| 9mins,41sec|
 
  on 4 node cluster: **16mins, 25sec**
  
 after adding new node without copying the data (i.e. new node has no data): **13mins, 38sec**  (5 node cluster)
 
 after adding new node after copying the data from the other nodes to new node: **9mins, 41sec** (5 node cluster)
-
-|4node cluster |Existing Procedure| New Procedure|
-|---|---|---|
-|16mins,25sec|13mins,38sec| 9mins,41sec|
 
 ### Conclusion:
 If we observe the results, new procedure has taken less time because of the data locality when compared to the existing procedure. We can add the nodes to the cluster when we execute the big hive queries and we can remove the nodes when we dont require, in small amount of time.
