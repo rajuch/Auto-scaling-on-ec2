@@ -1,22 +1,16 @@
 ###﻿Problem Statement:
 ﻿
-Hive on hadoop,
-
-  when user adds the node to the cluster, name node trasfers the data to the new node to balance the cluster and to take the new node into the action (for the execution of tasks). 
-   
-  when user decommisions the node from the cluster, name node transfers the data from the decommision node to the other nodes for maintaining the replication factor.
-  
-  These operations takes lot of time when dealing with the huge data (in tera bytes) and these operations have impact on the hive query execution time too..
+While running hive on hadoop, adding the computing node reduces the execution time when load is high but not that much because new node has to work on the other nodes data as it has no data and removing the node from the cluster when the load is low, also takes lot of time. 
 
 ### Solution:
 
-**Adding the node:**
+To reduce the time to scale the hadoop cluster, we came up with the below idea
 
-  Before adding the new node, move the data from the existing nodes to the new node and add it to the cluster, it balances the cluster and if any new task comes then new node can take it right away as it has the data (data locality).
+ Before adding the new node, move the data from the existing nodes to the new node and add it to the cluster, it balances the cluster and if any new task comes then new node can take it right away as it has the data (data locality).
  
-**Decommisioning the node:**
+And, before decommisioning the node, move the data from the decommisioning node to the other nodes in the cluster, it maintains the replication factor.
 
-  Before decommisioning, move the data from the decommisioning node to the other nodes in the cluster, it maintains the replication factor.
+This way reduces the lot of time as we are transferring the data to/from the node manually and it reduces the query time also as the new node can work on its own data.
 
 Note: Transferring the data is the manual operation and these operations should be done before the execution of hive query
 
@@ -64,15 +58,13 @@ Maintain the data in multiple volumes. In hdfs-site.xml add the entries of the d
    
 2. Start decommisioning of the node (see Appendix)
 3. Mount the volumes on the existing datanodes one by one.
-
-	For every volume,
-
-           * Mount the volume on data node and change the StorageID in the VERSION file (change the ip address of the storage id to the new node)
-           * Add the entry in hdfs-site.xml at the end of the existing volume entries (because data node picks the last entry as the new
-           entry)
-           * And run the below command
+For every volume,
+	* Mount the volume on data node and change the StorageID in the VERSION file (change the ip address of the storage id to the new node)
+    * Add the entry in hdfs-site.xml at the end of the existing volume entries (because data node picks the last entry as the new
+      entry)
+    * And run the below command
            
-             `bin/hadoop datanodeadmin -addVolume`
+       `bin/hadoop datanodeadmin -addVolume`
 
 ### Statistics:
 Hadoop Version: **1.4.0**
@@ -103,6 +95,10 @@ Time to bring up the new node:  **5sec**
 
 Time to update the Namenode about the new node data:  **300msec**
 
+|Existing Procedure| New Procedure|
+|---|---|
+|5-6 sec| 12mins|
+
 **Decommisoning of node:**
 
 With 6 gb data (existing procedure) :  **60 mins**
@@ -110,6 +106,10 @@ With 6 gb data (existing procedure) :  **60 mins**
 With the new procedure (6gb data), 
 
 scp transfer (11.48mins) + namenode updation(300msec): **less than 12 mins**
+
+|Existing Procedure| New Procedure|
+|---|---|
+|60 mins| < 12mins|
 
 **Time taken for Hive query**,
 
@@ -119,6 +119,9 @@ after adding new node without copying the data (i.e. new node has no data): **13
 
 after adding new node after copying the data from the other nodes to new node: **9mins, 41sec** (5 node cluster)
 
+|4node cluster |Existing Procedure| New Procedure|
+|---|---|---|
+|16mins,25sec|13mins,38sec| 9mins,41sec|
 
 ### Conclusion:
 If we observe the results, new procedure has taken less time because of the data locality when compared to the existing procedure. We can add the nodes to the cluster when we execute the big hive queries and we can remove the nodes when we dont require, in small amount of time.
