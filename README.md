@@ -34,9 +34,9 @@ Data: **22 GB**
 
 **Decommisoning of node:**
 
-|Existing Procedure(6gb data)| Our Procedure(6gb data)|
+|Existing Procedure(9.3gb data)| Our Procedure(9.3gb data)|
 |---|---|
-|60 mins| 6-7 sec|
+|9 mins| 8-9 sec|
 
 
 **Time taken for Hive query**,
@@ -47,7 +47,7 @@ Data: **22 GB**
 
 
 ### Conclusion:
-If we observe the results, new procedure has taken less time because of the data locality when compared to the existing procedure. 
+If we observe the results, our procedure has taken less time because of the data locality when compared to the existing procedure. 
 
 
 ### Future Work
