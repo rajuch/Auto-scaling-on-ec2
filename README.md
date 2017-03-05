@@ -2,7 +2,7 @@
 ﻿
 Scaling a Hadoop cluster with Hive has the following issues
 
-1. Adding a computing node(Scaling up) when load on the cluster is high decreases the execution time of the queries but its there is still a huge time lag as the new node works on data from other nodes.
+1. Adding a computing node(Scaling up) when load on the cluster is high decreases the execution time of the queries but there is still a huge time lag as the new node works on data from other nodes.
 2. The process of removing a node from the cluster(Scaling down) when load on the cluster is low, is also time consuming.
 
 ### Solution:
